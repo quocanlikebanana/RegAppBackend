@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 
-import cron from 'node-cron';
+const cron = require('node-cron');
 
 @Controller()
 export class AppController {
@@ -12,7 +12,7 @@ export class AppController {
 	}
 
 	@Get('/ping')
-	ping() {
+	ping(): string {
 		return "ping";
 	}
 }
