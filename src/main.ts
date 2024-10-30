@@ -15,7 +15,7 @@ async function bootstrap() {
 	// Turn on CORS for frontend to use the API,
 	// Can be configured to only allow certain domains, if left empty, all domains are allowed
 	app.enableCors({
-		origin: [/https:\/\/quocanlikebanana\.github\.io\/.*/, /http:\/\/localhost.*/],
+		origin: "*",
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 		preflightContinue: false,
 		optionsSuccessStatus: 204,
