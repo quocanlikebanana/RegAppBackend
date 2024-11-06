@@ -18,7 +18,20 @@ datasource db {
 model User {
     id        Int      @id @default(autoincrement())
     email     String   @unique
-    username  String   @unique
     password  String
+    firstName String?
+    lastName  String?
+    imageDir  String?
     createdAt DateTime @default(now())
+
+    RefreshToken RefreshToken[]
+}
+
+model RefreshToken {
+    id         Int      @id @default(autoincrement())
+    token      String
+    userId     Int
+    expiryDate DateTime
+
+    user User @relation(fields: [userId], references: [id])
 }

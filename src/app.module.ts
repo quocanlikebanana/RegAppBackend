@@ -1,21 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { DatabaseModule } from './database/database.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { UserModule } from './user/user.module';
-import { HelperModule } from './helper/helper.module';
+import { ControllerModule } from './controller/controller.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule as MyConfigModule } from './config/config.module';
 
 
 @Module({
 	imports: [
-		DatabaseModule,
-		HelperModule,
-
-		// Models
-		UserModule,
-
 		// Default throttle configuration for all routes
 		ThrottlerModule.forRoot([
 			{
@@ -23,12 +16,29 @@ import { HelperModule } from './helper/helper.module';
 				limit: 10,	// 10 requests 
 			},
 		]),
+
+		ConfigModule.forRoot({
+			isGlobal: true,
+			cache: true,
+		}),
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+
+			}),
+			global: true,
+			inject: [ConfigService],
+		}),
+
+		ControllerModule,
+		MyConfigModule,
 	],
-	controllers: [AppController],
-	providers: [AppService, {
-		provide: APP_GUARD,
-		useClass: ThrottlerGuard,
-	}],
+	providers: [
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard,
+		}
+	],
 })
 
 export class AppModule { }

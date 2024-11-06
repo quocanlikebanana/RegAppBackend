@@ -2,7 +2,10 @@ import { Catch, ArgumentsHost, HttpStatus, HttpException, ConsoleLogger } from "
 import { BaseExceptionFilter } from "@nestjs/core";
 import { Request, Response } from "express";
 import { PrismaClientKnownRequestError, PrismaClientRustPanicError, PrismaClientUnknownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
+import { DomainError as DomainError } from "./domain/common/domain.err";
+import { UsecaseError } from "./usecases/common/usecase.err";
 
+// Define the error response format
 type MyError = {
 	statusCode: number;
 	timeStamp: string;
@@ -24,19 +27,14 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
 			response: '',
 		}
 
-		// Prisma errors
-		if (exception instanceof PrismaClientValidationError) {
+		if (exception instanceof DomainError) {
 			responseError.statusCode = HttpStatus.BAD_REQUEST;
-			responseError.response = `Prisma client validation error: ` + exception.message.replaceAll('\n', ' ');
-		} else if (exception instanceof PrismaClientKnownRequestError) {
+			responseError.response = `Domain: ${exception.message}`;
+		}
+
+		else if (exception instanceof UsecaseError) {
 			responseError.statusCode = HttpStatus.BAD_REQUEST;
-			responseError.response = `Prisma known request error: ${exception.message.replaceAll('\n', ' ')}`;
-		} else if (exception instanceof PrismaClientUnknownRequestError) {
-			responseError.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-			responseError.response = `Prisma unknown request error: ${exception.message.replaceAll('\n', ' ')}`;
-		} else if (exception instanceof PrismaClientRustPanicError) {
-			responseError.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-			responseError.response = `Prisma rust panic error: ${exception.message.replaceAll('\n', ' ')}`;
+			responseError.response = exception.message;
 		}
 
 		// Http errors
