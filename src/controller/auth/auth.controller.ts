@@ -10,6 +10,7 @@ import RefreshTokenCommand from 'src/usecases/auth/uc/refresh-token.c';
 import LogoutCommand from 'src/usecases/auth/uc/logout.c';
 import AuthResponsePresenter from './auth.response';
 import JwtGuard from '../common/guards/jwt.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,7 @@ export class AuthController {
 	) { }
 
 	@Post('/login')
+	@SkipThrottle()
 	@UseGuards(LocalGuard)
 	async login(@User() user: AccountParam): Promise<AuthResponsePresenter> {
 		const tokenPair = await this.signAccountCommand.execute({

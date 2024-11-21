@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import UserProfilePresenter from 'src/usecases/user/presenter/user-profile.presenter';
 import UserPresenter from 'src/usecases/user/presenter/user.presenter';
 import GetAllUsersQuery from 'src/usecases/user/uc/getalluser.q';
@@ -15,6 +15,12 @@ export class UserController {
 		private readonly getUserProfileQUC: GetUserProfileQuery,
 	) { }
 
+	@Get()
+	async getUserProfileByIdQuery(@Query('userId') id: number): Promise<UserProfilePresenter> {
+		const user = await this.getUserProfileQUC.execute(id.toString());
+		return user;
+	}
+
 	@Get('/all')
 	async getAllUser(): Promise<UserPresenter[]> {
 		const users = await this.getAllUsersQUC.execute();
@@ -30,7 +36,7 @@ export class UserController {
 
 	// Remove the order, param routes go last
 	@Get('/:id')
-	async getUser(@Param('id') id: string): Promise<UserProfilePresenter> {
+	async getUserProfileById(@Param('id') id: string): Promise<UserProfilePresenter> {
 		const user = await this.getUserProfileQUC.execute(id);
 		return user;
 	}

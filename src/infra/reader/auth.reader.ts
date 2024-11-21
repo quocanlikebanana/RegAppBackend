@@ -4,11 +4,13 @@ import AuthResultPresenter from "src/usecases/auth/presenter/auth-result.present
 import { PrismaDatabaseService } from "../common/database/database.service";
 import { Injectable } from "@nestjs/common";
 import AccountPresenter from "src/usecases/auth/presenter/account.presenter";
+import { HashingService } from "../common/helper/hasing.service";
 
 @Injectable()
 export default class AuthReader implements IAuthReader {
 	constructor(
-		private readonly databaseService: PrismaDatabaseService
+		private readonly databaseService: PrismaDatabaseService,
+		private readonly hashingService: HashingService
 	) { }
 
 	async checkUserExists(email: string): Promise<boolean> {
@@ -32,7 +34,8 @@ export default class AuthReader implements IAuthReader {
 				message: "User not found for email: " + loginParam.email
 			};
 		}
-		if (user.password !== loginParam.password) {
+		const isPasswordValid = await this.hashingService.comparePassword(loginParam.password, user.password);
+		if (isPasswordValid === false) {
 			return {
 				isSucess: false,
 				message: "Invalid password"
